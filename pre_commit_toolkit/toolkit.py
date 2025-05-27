@@ -1,8 +1,9 @@
-import os
+import argparse
 from pathlib import Path
 from typing import Dict, List, Optional
 
 import ruamel.yaml
+import sys
 
 
 class PreCommitConfigManager:
@@ -74,7 +75,7 @@ class PreCommitConfigManager:
 
 def main():
     parser = argparse.ArgumentParser(
-        description='configure .pre-commit-config.yaml automaticlly', formatter_class=argparse.RawTextHelpFormatter
+        description='configure .pre-commit-config.yaml automatically', formatter_class=argparse.RawTextHelpFormatter
     )
     parser.add_argument('--path', type=str, default='./', help='Specify a Git repository root directory path')
     parser.add_argument(
@@ -87,9 +88,6 @@ def main():
     args = parser.parse_args()
 
     try:
-        with open(args.rules, 'r') as f:
-            required_rules = json.load(f)
-
         manager = PreCommitConfigManager(args.path)
         if not manager.path_exists() or not manager.is_git_root():
             sys.exit('path is not exists or not a git repository ')
@@ -97,7 +95,7 @@ def main():
         full_rules = None
         if args.type == 'python':
             with open('python/pre-commit-config.yaml', 'r') as f:
-                full_rules = json.load(f)
+                full_rules = manager.yaml.load(f)
         else:
             sys.exit(f"Now don't support {args.type}")
 
